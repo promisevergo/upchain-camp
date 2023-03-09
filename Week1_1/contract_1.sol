@@ -2,7 +2,9 @@ pragma solidity ^0.8.0;
 
 contract SimpleMath {
     uint256 public num;
-
+    constructor() public {
+        num = 0;
+    }
     function add() public {
         num += 1;
     }
