@@ -23,6 +23,7 @@ setGlobalDispatcher(proxyAgent);
 
 
 require("@nomicfoundation/hardhat-toolbox");
+require("hardhat-abi-exporter");
 const { TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD } = require("hardhat/builtin-tasks/task-names");
 const { config } = require("process");
 
@@ -54,12 +55,20 @@ module.exports = {
     },
     goeril:{
       url: keyConfig.goeril_url,
-      accounts: [keyConfig.account_2]
+      accounts: [keyConfig.account_2, keyConfig.account_1]
     },
     localhost:{
       url:"http://127.0.0.1:8545/",
       accounts: [keyConfig.Hardhat_1]
     }
+  },
+  abiExporter:{
+    path: './deployments/abi',
+    clear: true,
+    flat: true,
+    only: [],
+    spacing: 2,
+    pretty: true,
   },
   etherscan:{
     apiKey: keyConfig.etherscan_apiKey
