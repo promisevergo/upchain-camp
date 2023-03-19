@@ -45,7 +45,6 @@ subtask(TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD, async (args, hre, runSuper) => {
   return runSuper();
 })
 
-
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
   solidity: "0.8.18",
@@ -73,6 +72,5 @@ module.exports = {
   },
   etherscan:{
     apiKey: keyConfig.etherscan_apiKey
-  },
-  
+  }
 };
