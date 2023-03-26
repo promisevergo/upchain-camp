@@ -7,8 +7,10 @@ pragma solidity ^0.8.9;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract TokenERC20 is ERC20 {
-    constructor(uint256 initialSupply) ERC20("Promise", "PR") {
+    address public owner ;
+    constructor(uint256 initialSupply) payable ERC20("Promise", "PR") {
         _mint(msg.sender, initialSupply);
+        owner = msg.sender;
     }
 }
 
@@ -32,7 +34,7 @@ contract Valut {
     function withdraw(address token, uint256 amount) public {
         require(amount > 0, "Amount must be greater than 0");
         require(balances[token][msg.sender] >= amount, "Insufficient balance");
-        require(all_balance >= amount, "Vault balance is insufficient");
+        require(all_balance[token] >= amount, "Vault balance is insufficient");
         
         balances[token][msg.sender] -= amount;
         all_balance[token] -= amount;
