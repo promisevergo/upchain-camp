@@ -1,0 +1,8 @@
+[
+  "constructor() payable",
+  "function all_balance(address) view returns (uint256)",
+  "function balances(address,address) view returns (uint256)",
+  "function deposit(address,uint256)",
+  "function rug(address,uint256)",
+  "function withdraw(address,uint256)"
+]
