@@ -22,6 +22,7 @@ export default {
         decimal: null,
         symbol: null,
         supply: null,
+        allowance: null,
 
         stakeAmount: null,
         }
@@ -36,6 +37,7 @@ export default {
 
             //如果获取到了账号，进行合约初始化，并读取合约数据
             if (this.account){
+                console.log("连接metamask成功,账户地址：" + this.account);
                 this.initContract();
                 this.readContract();
             }
@@ -46,7 +48,7 @@ export default {
                 this.provider = new ethers.providers.Web3Provider(window.ethereum);
                 let network = await this.provider.getNetwork()
                 this.chainId = network.chainId;
-                console.log("chainId:", this.chainId);
+                console.log("chainId:", network.chainId);
             } else{
                 console.log("Need install MetaMask")
             }
@@ -55,7 +57,6 @@ export default {
         async initAccount(){
             try {
                 this.accounts = await this.provider.send("eth_requestAccounts", []);
-                console.log("accounts:" + this.accounts);
                 this.account = this.accounts[0];
 
                 this.signer = this.provider.getSigner();
@@ -67,17 +68,18 @@ export default {
         async initContract(){
             this.tokenERC20 = new ethers.Contract(TokenERC20_Addr.address, TokenERC20_Abi, this.signer);
 
-            this.valut = new ether.Contract(Valut_Addr.address, Valut_Abi, this.signer);
+            this.valut = new ethers.Contract(Valut_Addr.address, Valut_Abi, this.signer);
         },
 
         readContract() {
             this.provider.getBalance(this.account).then((balance) => {
-                this.ethbalance = ethers.utils.formatEther(balance, 18)
+                this.ethbalance = ethers.utils.formatEther(balance, 18);
+                console.log("ETH余额: " + this.ethbalance);
             });
             this.tokenERC20.name().then((r) => {
                 this.name = r
             });
-            this.tokenERC20.decimal().then((r) => {
+            this.tokenERC20.decimals().then((r) => {
                 this.decimal = r
             });
             this.tokenERC20.symbol().then((r) => {
@@ -88,12 +90,42 @@ export default {
             });
             this.tokenERC20.balanceOf(this.account).then((r) => {
                 this.balance = ethers.utils.formatEther(r, 18);
+                console.log("我的token余额：" + this.balance)
+            });
+            this.tokenERC20.allowance(this.account, Valut_Addr.address).then((r) => {
+                this.allowance = ethers.utils.formatEther(r, 18);
             });
         },
+        approve() {
+            let amount = ethers.utils.parseUnits("9999999999999999", 18);
+            this.tokenERC20.approve(Valut_Addr.address, amount).then((r) =>{
+                console.log(r);     //返回值不是true
+                this.readContract();
+            })
+        },
 
-        transfer() {
+
+        async deposit() {
             let amount = ethers.utils.parseUnits(this.amount, 18);
-            this.tokenERC20.transfer(this.recipient, amount).then((r) =>{
+
+            // this.valut.deposit(TokenERC20_Addr.address, amount).then((r) =>{
+            //     console.log(r);     //返回值不是true
+            //     this.readContract();
+            // })
+            try {
+                let tx = await this.valut.deposit(TokenERC20_Addr.address, amount);
+                let receipt = await tx.wait();
+                console.log("质押token成功", receipt);
+                this.readContract();
+            } catch (e) {
+                console.log("质押token失败，Error: ", e);
+                this.readContract();
+            }
+        },
+
+        withdraw() {
+            let amount = ethers.utils.parseUnits(this.amount, 18);
+            this.valut.withdraw(TokenERC20_Addr.address, amount).then((r) =>{
                 console.log(r);     //返回值不是true
                 this.readContract();
             })
@@ -164,15 +196,21 @@ export default {
           <br /> Token 发行量 : {{  supply }}
           <br /> 我的 Token 余额 : {{ balance  }}
           <br /> 我的ETH余额 : {{ ethbalance  }}
+          <br /> 授权valut合约的数量 : {{ allowance  }}
         </div>
   
         <div >
-          <br />转账到:
-          <input type="text" v-model="recipient" />
-          <br />转账金额
+          <button @click="approve"> 授权 </button>
+
+          <br />存入{{ name }}代币的数量
           <input type="text" v-model="amount" />
           <br />
-          <button @click="transfer"> 转账 </button>
+          <button @click="deposit"> 存入 </button>
+
+          <br />提款{{ name }}代币的数量
+          <input type="text" v-model="amount" />
+          <br />
+          <button @click="withdraw"> 取出 </button>
         </div>
   
       <div >

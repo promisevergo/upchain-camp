@@ -22,7 +22,7 @@ module.exports = {
     },
     goeril:{
       url: keyConfig.goeril_url,
-      accounts: [keyConfig.account_2, keyConfig.account_1]
+      accounts: [keyConfig.account_1, keyConfig.account_2]
     },
     localhost:{
       url:"http://127.0.0.1:8545/",
